@@ -1,0 +1,10 @@
+###
+POST http://localhost:3002/api/v2/auth/signup
+Content-Type: application/json
+
+{
+    "name":"ankit",
+    "email":"ankit@gmail.com",
+    "password":"1gvjbh",
+    "phone":"24354ytuy54`"
+}
