@@ -14,6 +14,10 @@ class AuthRoute {
       `${this.path}signup`,
       this.authController.signup.bind(this.authController)
     );
+    this.router.post(
+      `${this.path}login`,
+      this.authController.login.bind(this.authController)
+    );
   }
 }
 module.exports = AuthRoute;
