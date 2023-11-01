@@ -24,9 +24,7 @@ class App {
   listen() {
     this.app.listen(this.port, () => {
       catchUnhandledError();
-      console.info("=================================");
       console.info(`🚀 App listening on port ${this.port}`);
-      console.info("=================================");
     });
   }
 

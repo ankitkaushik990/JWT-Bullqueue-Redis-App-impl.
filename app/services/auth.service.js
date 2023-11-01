@@ -5,31 +5,35 @@ const { HttpException } = require("../errors/HttpException");
 
 class AuthService {
   async signup(userData) {
-    if (isEmpty(userData)) {
-      throw new HttpException(400, "Request body is empty");
-    }
-    let createdUser;
-    if (userData.name) {
-      const hashedPassword = await bcrypt.hash(userData.password, 10);
-      createdUser = await users.create({
-        name: userData.name,
-        password: hashedPassword,
-      });
-      if (userData.email) {
-        await email_tables.create({
-          email: userData.email,
-          userId: createdUser.id,
-        });
+      if (isEmpty(userData)) {
+        throw new HttpException(400, "Request body is empty");
       }
-      if (userData.phone) {
-        await phone_tables.create({
-          phone: userData.phone,
-          userId: createdUser.id,
+      let createdUser;
+      if (userData.name) {
+        const hashedPassword = await bcrypt.hash(userData.password, 10);
+        createdUser = await users.create({
+          name: userData.name,
+          password: hashedPassword,
         });
+
+        if (userData.phone) {
+          await phone_tables.create({
+            phone: userData.phone,
+            userId: createdUser.id,
+          });
+        }
+        let final;
+        if (userData.email) {
+          console.log(userData.email);
+          final = await email_tables.create({
+            email: userData.email,
+            userId: createdUser.id,
+          });
+        }
+        return final;
+      } else {
+        throw new HttpException(400, "User name is required");
       }
-    } else {
-      throw new HttpException(400, "User name is required");
-    }
   }
 }
 

@@ -7,8 +7,8 @@ class AuthController {
 
   async signup(req, res) {
     const userData = req.body; 
-    await this.authService.signup(userData);
-    res.status(200).json({ message: "signup successful" });
+   let final = await this.authService.signup(userData);
+   res.status(200).json({ final, message: "signup successful" });
   }
 
 }

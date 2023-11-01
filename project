@@ -10,4 +10,3 @@ tasks overview -
 5. login api that returns the token needs to be authorised with OTP, store OTP for 3 min in redis, after OTP has been verified only then return the token in api response
 6. create a public api to show all users ranking based on the random number generated
 
-all lets connect, ill explain in detail about this project for your learning.
