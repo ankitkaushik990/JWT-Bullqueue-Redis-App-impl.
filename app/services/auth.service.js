@@ -49,10 +49,12 @@ class AuthService {
         },
       ],
     });
-    const findUser = emailRecord.user;
-    if (!findUser) {
-      throw new HttpException(400, "email not found");
-    }
+
+     if (!emailRecord) {
+       throw new HttpException(400, "Email not found");
+     }
+
+     const findUser = emailRecord.user;
     if (findUser) {
       const isPasswordMatching = await bcrypt.compare(
         loginData.password,
