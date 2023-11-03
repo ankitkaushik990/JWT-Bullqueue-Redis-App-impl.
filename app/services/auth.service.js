@@ -83,7 +83,7 @@ class AuthService {
           if (err) {
             throw new HttpException(403, "Error in setting details");
           } else {
-            redis.expire(findUser.email, 180);
+            redis.expire(emailRecord.email, 180);
           }
         });
         return { findUser, otp };
