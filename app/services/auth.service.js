@@ -1,6 +1,5 @@
 const redis = require("../utils/redisUtils");
-// const util = require("util");
-// const getAsync = util.promisify(redis.get).bind(redis);
+
 
 const bcrypt = require("bcrypt");
 
