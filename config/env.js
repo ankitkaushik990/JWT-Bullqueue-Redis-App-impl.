@@ -7,4 +7,5 @@ module.exports = {
   MESSAGE_SERVICE: process.env.MESSAGE_SERVICE_SID,
   REDIS_HOST: process.env.REDIS_HOST,
   REDIS_PORT: process.env.REDIS_PORT,
+  JWT_SECRET: process.env.JWT_SECRET,
 };

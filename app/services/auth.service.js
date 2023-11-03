@@ -1,7 +1,11 @@
-const bcrypt = require("bcrypt");
 const redis = require("../utils/redisUtils");
+const util = require("util");
+const getAsync = util.promisify(redis.get).bind(redis);
+
+const bcrypt = require("bcrypt");
 
 const twilioUtils = require("../utils/twilioUtils");
+const jwtUtils = require("../utils/jwtUtils");
 const { users, phone_tables, email_tables } = require("../model");
 const { isEmpty } = require("../utils/empty");
 const { HttpException } = require("../errors/HttpException");
@@ -75,11 +79,11 @@ class AuthService {
         const otp = Math.floor(1000 + Math.random() * 9000);
         // try {
         // await twilioUtils.sendOTPToPhoneNumber(phoneRecord.phone, otp);
-        redis.set(phoneRecord.phone, otp, (err, result) => {
+        redis.set(emailRecord.email, otp, (err, result) => {
           if (err) {
             throw new HttpException(403, "Error in setting details");
           } else {
-            redis.expire(phoneRecord.phone, 180);
+            redis.expire(findUser.email, 180);
           }
         });
         return { findUser, otp };
@@ -93,6 +97,44 @@ class AuthService {
       throw new HttpException(400, "user not found");
     }
     return { findUser };
+  }
+
+  async verify(verifyData) {
+    if (isEmpty(verifyData)) {
+      throw new HttpException(400, "Request body is empty");
+    }
+
+    const { email, otp } = verifyData;
+
+    const emailRecord = await email_tables.findOne({
+      where: { email },
+      include: [
+        {
+          model: users,
+          as: "user",
+        },
+      ],
+    });
+
+    if (!emailRecord || !emailRecord.user) {
+      throw new HttpException(400, "not such email found");
+    }
+
+    const user = emailRecord.user;
+    const payload = { user };
+
+    const token = jwtUtils.generateToken(payload);
+    try {
+      const storedOTP = await getAsync(email);
+
+      if (storedOTP === otp.toString()) {
+        return token;
+      } else {
+        throw new HttpException(401, "Not authorized: Invalid OTP");
+      }
+    } catch (error) {
+      throw new HttpException(500, "Error retrieving OTP from Redis");
+    }
   }
 }
 

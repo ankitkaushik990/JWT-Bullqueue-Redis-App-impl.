@@ -13,7 +13,7 @@ const catchUnhandledError = () => {
 
   // just incase warning are needed to be logged
   process.on("warning", (warning) => {
-    logger.warning(warning.stack);
+    logger.warn(warning.stack);
   });
 };
 

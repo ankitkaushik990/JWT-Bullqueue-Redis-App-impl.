@@ -18,6 +18,10 @@ class AuthRoute {
       `${this.path}login`,
       this.authController.login.bind(this.authController)
     );
+    this.router.post(
+      `${this.path}verify`,
+      this.authController.verify.bind(this.authController)
+    );
   }
 }
 module.exports = AuthRoute;

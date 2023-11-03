@@ -13,10 +13,16 @@ class AuthController {
 
   async login(req, res) {
     const loginData = req.body;
-   const loginDetail = await this.authService.login(loginData);
-   res
-     .status(200)
-     .json({ message: "lowgin successfull, Enter OTP ", loginDetail });
+    const loginDetail = await this.authService.login(loginData);
+    res
+      .status(200)
+      .json({ message: "lowgin successfull, Enter OTP ", loginDetail });
+  }
+
+  async verify(req, res) {
+    const verifyData = req.body;
+    const verifyDetail = await this.authService.verify(verifyData);
+    res.status(200).json({ message: "Login Success", verifyDetail });
   }
 }
 
