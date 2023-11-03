@@ -1,6 +1,6 @@
 const redis = require("../utils/redisUtils");
-const util = require("util");
-const getAsync = util.promisify(redis.get).bind(redis);
+// const util = require("util");
+// const getAsync = util.promisify(redis.get).bind(redis);
 
 const bcrypt = require("bcrypt");
 
@@ -125,7 +125,7 @@ class AuthService {
 
     const token = jwtUtils.generateToken(payload);
     try {
-      const storedOTP = await getAsync(email);
+      const storedOTP = await redis.get(email);
 
       if (storedOTP === otp.toString()) {
         return token;
@@ -133,7 +133,8 @@ class AuthService {
         throw new HttpException(401, "Not authorized: Invalid OTP");
       }
     } catch (error) {
-      throw new HttpException(500, "Error retrieving OTP from Redis");
+      console.log(error);
+      throw new HttpException(500, error.message);
     }
   }
 }
