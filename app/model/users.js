@@ -17,13 +17,17 @@ module.exports = (sequelize, DataTypes) => {
         });
     }
   }
-  users.init({
-    name: DataTypes.STRING,
-    password: DataTypes.STRING,
-    address: DataTypes.STRING
-  }, {
-    sequelize,
-    modelName: 'users',
-  });
+  users.init(
+    {
+      name: DataTypes.STRING,
+      password: DataTypes.STRING,
+      address: DataTypes.STRING,
+      randomNumber:DataTypes.INTEGER,
+    },
+    {
+      sequelize,
+      modelName: "users",
+    }
+  );
   return users;
 };

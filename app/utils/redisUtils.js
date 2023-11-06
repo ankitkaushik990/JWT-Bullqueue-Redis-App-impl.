@@ -6,13 +6,5 @@ const redis = new Redis({
   port: REDIS_PORT,
 });
 
-redis
-  .connect()
-  .then(() => {
-    console.log("Connected to Redis");
-  })
-  .catch((err) => {
-    console.error("Error connecting to Redis:", err);
-  });
 
 module.exports = redis;

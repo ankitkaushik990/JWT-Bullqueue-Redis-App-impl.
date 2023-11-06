@@ -1,6 +1,4 @@
 const redis = require("../utils/redisUtils");
-
-
 const bcrypt = require("bcrypt");
 
 const twilioUtils = require("../utils/twilioUtils");
@@ -8,6 +6,8 @@ const jwtUtils = require("../utils/jwtUtils");
 const { users, phone_tables, email_tables } = require("../model");
 const { isEmpty } = require("../utils/empty");
 const { HttpException } = require("../errors/HttpException");
+const setupQueue = require("../utils/queue");
+const randomNumberQueue = setupQueue(); 
 
 class AuthService {
   async signup(userData) {
@@ -36,6 +36,7 @@ class AuthService {
           userId: createdUser.id,
         });
       }
+       randomNumberQueue.add({ userId: createdUser.id });
       return final;
     } else {
       throw new HttpException(400, "User name is required");
