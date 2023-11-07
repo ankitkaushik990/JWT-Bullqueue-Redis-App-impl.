@@ -14,6 +14,10 @@ class UserRoute {
       `${this.path}edit`,
       this.userController.edit.bind(this.userController)
     );
+      this.router.get(
+        `${this.path}all`,
+        this.userController.getall.bind(this.userController)
+      );
   }
 }
 module.exports = UserRoute;

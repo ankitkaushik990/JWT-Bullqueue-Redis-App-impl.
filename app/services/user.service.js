@@ -33,6 +33,19 @@ class UserService {
       throw new HttpException(error.status || 500, error.message);
     }
   }
+  async getall() {
+    try {
+      const allUsers = await users.findAll({
+        attributes: ["randomNumber"],
+        order: [["randomNumber", "ASC"]],
+      });
+
+      return allUsers.map((user) => user.randomNumber);
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(401, "Error in getall");
+    }
+  }
 }
 
 module.exports = UserService;
