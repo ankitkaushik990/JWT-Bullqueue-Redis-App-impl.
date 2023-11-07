@@ -4,7 +4,8 @@ const bcrypt = require("bcrypt");
 const twilioUtils = require("../utils/twilioUtils");
 const jwtUtils = require("../utils/jwtUtils");
 const { users, phone_tables, email_tables } = require("../model");
-const {isEmpty} = require("../utils/empty");
+const { isEmpty } = require("../utils/empty");
+const { isEmail } = require("../utils/checkEmail");
 const { HttpException } = require("../errors/HttpException");
 const setupQueue = require("../utils/queue");
 const randomNumberQueue = setupQueue(); 
@@ -13,6 +14,9 @@ class AuthService {
   async signup(userData) {
     if (isEmpty(userData)) {
       throw new HttpException(400, "Request body is empty");
+    }
+    if (isEmail(userData.email)) {
+      throw new HttpException(400, "email already exists");
     }
     let createdUser;
     if (userData.name) {
