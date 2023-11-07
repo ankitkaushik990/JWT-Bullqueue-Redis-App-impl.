@@ -36,14 +36,20 @@ class UserService {
   async getall() {
     try {
       const allUsers = await users.findAll({
-        attributes: ["randomNumber"],
-        order: [["randomNumber", "ASC"]],
+        attributes: ["id", "name", "randomNumber"],
+        order: [["randomNumber", "DESC"]],
       });
 
-      return allUsers.map((user) => user.randomNumber);
+      return allUsers.map((user) => {
+        return {
+          id: user.id,
+          name: user.name,
+          randomNumber: user.randomNumber,
+        };
+      });
     } catch (error) {
       console.error(error);
-      throw new HttpException(401, "Error in getall");
+      throw new HttpException(401, "Error in getAll");
     }
   }
 }
