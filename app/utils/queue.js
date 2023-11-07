@@ -14,8 +14,6 @@ function setupQueue() {
     const userId = job.data.userId;
 
     try {
-      // Update the random number in the database using your ORM/model methods here
-      // For example:
       await users.update(
         { randomNumber: randomNumber },
         { where: { id: userId } }
