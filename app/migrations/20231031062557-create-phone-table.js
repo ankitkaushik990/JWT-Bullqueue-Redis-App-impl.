@@ -7,13 +7,13 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER(4).ZEROFILL,
       },
       phone: {
         type: Sequelize.STRING,
       },
       userId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER(4).ZEROFILL,
         allowNull: false,
         references: {
           model: "users",
