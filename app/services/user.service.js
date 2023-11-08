@@ -1,6 +1,7 @@
 const { verifyToken } = require("../utils/jwtUtils");
 const { HttpException } = require("../errors/HttpException");
 const { users } = require("../model");
+const { editSchema } = require("../validators/joi.validator");
 
 class UserService {
   async edit(req) {
@@ -10,6 +11,11 @@ class UserService {
 
       if (decodedToken) {
         const { name, address } = req.body;
+        const { error } = editSchema.validate({ name, address });
+        if (error) {
+          throw new HttpException(400, error.details[0].message);
+        }
+
         const updatedUser = await users.update(
           { name, address },
           {

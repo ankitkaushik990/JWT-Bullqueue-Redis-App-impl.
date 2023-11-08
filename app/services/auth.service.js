@@ -4,26 +4,39 @@ const bcrypt = require("bcrypt");
 const twilioUtils = require("../utils/twilioUtils");
 const jwtUtils = require("../utils/jwtUtils");
 const { users, phone_tables, email_tables } = require("../model");
-const { isEmpty } = require("../utils/empty");
 const { isEmail } = require("../utils/checkEmail");
+const { isEmpty } = require("../utils/empty");
 const { HttpException } = require("../errors/HttpException");
+const {
+  userSchema,
+  loginSchema,
+  verifySchema,
+} = require("../validators/joi.validator");
 const setupQueue = require("../utils/queue");
-const randomNumberQueue = setupQueue(); 
+const randomNumberQueue = setupQueue();
 
 class AuthService {
   async signup(userData) {
     if (isEmpty(userData)) {
       throw new HttpException(400, "Request body is empty");
     }
-    if (isEmail(userData.email)) {
-      throw new HttpException(400, "email already exists");
+    const { error } = userSchema.validate(userData);
+    if (error) {
+      throw new HttpException(400, error.details[0].message);
     }
+    const emailExists = await isEmail(userData.email);
+
+    if (emailExists) {
+      throw new HttpException(400, "Email Already Exists");
+    }
+
     let createdUser;
     if (userData.name) {
       const hashedPassword = await bcrypt.hash(userData.password, 10);
       createdUser = await users.create({
         name: userData.name,
         password: hashedPassword,
+        address: userData.address,
       });
 
       if (userData.phone) {
@@ -40,17 +53,23 @@ class AuthService {
           userId: createdUser.id,
         });
       }
-       randomNumberQueue.add({ userId: createdUser.id });
+      randomNumberQueue.add({ userId: createdUser.id });
       return final;
     } else {
       throw new HttpException(400, "User name is required");
     }
   }
-
   async login(loginData) {
     if (isEmpty(loginData)) {
       throw new HttpException(400, "Request body is empty");
     }
+
+    const { error } = loginSchema.validate(loginData);
+
+    if (error) {
+      throw new HttpException(400, error.details[0].message);
+    }
+
     const emailRecord = await email_tables.findOne({
       where: { email: loginData.email },
       include: [
@@ -66,23 +85,25 @@ class AuthService {
     }
 
     const findUser = emailRecord.user;
+
     if (findUser) {
       const isPasswordMatching = await bcrypt.compare(
         loginData.password,
         findUser.password
       );
+
       if (!isPasswordMatching) {
         throw new HttpException(409, "Password is incorrect");
       }
-
+      let otp = null;
       const phoneRecord = await phone_tables.findOne({
         where: { userId: emailRecord.user.id },
       });
 
       if (phoneRecord && phoneRecord.phone) {
-        const otp = Math.floor(1000 + Math.random() * 9000);
+        otp = Math.floor(1000 + Math.random() * 9000);
         // try {
-        // await twilioUtils.sendOTPToPhoneNumber(phoneRecord.phone, otp);
+        //   await twilioUtils.sendOTPToPhoneNumber(phoneRecord.phone, otp);
         redis.set(emailRecord.email, otp, (err, result) => {
           if (err) {
             throw new HttpException(403, "Error in setting details");
@@ -90,24 +111,26 @@ class AuthService {
             redis.expire(emailRecord.email, 180);
           }
         });
-        return { findUser, otp };
+        // } catch (error) {
+        //   console.error("Error sending OTP via Twilio:", error);
+        //   throw new HttpException(500, "Error sending OTP via Twilio");
+        // }
       }
-      // catch (error) {
-      //   console.error("Error sending OTP via Twilio:", error);
-      //   throw new HttpException(500, "Error sending OTP via Twilio");
-      // }
-      // }
+
+      return { findUser, otp };
     } else {
-      throw new HttpException(400, "user not found");
+      throw new HttpException(400, "User not found");
     }
-    return { findUser };
   }
 
   async verify(verifyData) {
     if (isEmpty(verifyData)) {
       throw new HttpException(400, "Request body is empty");
     }
-
+    const { error } = verifySchema.validate(verifyData);
+    if (error) {
+      throw new HttpException(400, error.details[0].message);
+    }
     const { email, otp } = verifyData;
 
     const emailRecord = await email_tables.findOne({
