@@ -155,6 +155,7 @@ class AuthService {
       const storedOTP = await redis.get(email);
 
       if (storedOTP === otp.toString()) {
+        await redis.del(email);
         return token;
       } else {
         throw new HttpException(401, "Not authorized: Invalid OTP");
