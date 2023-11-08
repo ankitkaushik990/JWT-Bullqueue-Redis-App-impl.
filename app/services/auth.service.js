@@ -102,19 +102,19 @@ class AuthService {
 
       if (phoneRecord && phoneRecord.phone) {
         otp = Math.floor(1000 + Math.random() * 9000);
-        // try {
-        //   await twilioUtils.sendOTPToPhoneNumber(phoneRecord.phone, otp);
-        redis.set(emailRecord.email, otp, (err, result) => {
-          if (err) {
-            throw new HttpException(403, "Error in setting details");
-          } else {
-            redis.expire(emailRecord.email, 180);
-          }
-        });
-        // } catch (error) {
-        //   console.error("Error sending OTP via Twilio:", error);
-        //   throw new HttpException(500, "Error sending OTP via Twilio");
-        // }
+        try {
+          await twilioUtils.sendOTPToPhoneNumber(phoneRecord.phone, otp);
+          redis.set(emailRecord.email, otp, (err, result) => {
+            if (err) {
+              throw new HttpException(403, "Error in setting details");
+            } else {
+              redis.expire(emailRecord.email, 180);
+            }
+          });
+        } catch (error) {
+          console.error("Error sending OTP via Twilio:", error);
+          throw new HttpException(500, "Error sending OTP via Twilio");
+        }
       }
 
       return { findUser, otp };

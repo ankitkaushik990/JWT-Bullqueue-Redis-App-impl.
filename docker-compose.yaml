@@ -1,0 +1,60 @@
+version: '3'
+services:
+  bullqueue_user_app:
+    container_name: bullqueue-user-app
+    build:
+      context: .
+    ports:
+      - '8080:8080'
+    env_file:
+      - ./config/.env
+    volumes:
+      - .:/vol
+    depends_on:
+      - mysql_db
+      - redis
+    restart: always
+
+  mysql_db:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: bullqueue
+    ports:
+      - "3306:3306"
+    volumes:
+      - vol:/var/lib/mysql
+
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    restart: always
+    environment:
+      PMA_HOST: mysql_db
+      PMA_USER: root
+      PMA_PASSWORD: password
+    depends_on:
+      - mysql_db
+    ports:
+      - '3003:80'
+
+  redis-commander:  
+    image: "rediscommander/redis-commander:latest"
+    environment:
+      - REDIS_HOSTS=redis
+    ports:
+      - '8081:8081'
+    depends_on:
+      - redis
+
+volumes:
+  vol:
+  redis-data: 
